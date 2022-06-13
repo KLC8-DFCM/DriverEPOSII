@@ -1,8 +1,9 @@
 #include <linux/module.h>
 #include <linux/init.h>
+#include <linux/version.h>
 
 /* Meta information for alllowing correct loading of modules through distros*/
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Diego Fleury");
 MODULE_DESCRIPTION("Driver for Maxon Epos II 50/5 motor driver, for use in Ubuntu server 20.04, inside Raspberry Pi 4");
 
@@ -19,7 +20,7 @@ static int __init ModuleInit(void){
 }
 
 
-static void __init ModuleExit(void){
+static void __exit ModuleExit(void){
 
 		printk("Epos II 50/5 module unloaded\n");
 
