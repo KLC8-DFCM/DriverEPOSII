@@ -56,8 +56,22 @@ static int ModuleInit(void){
                                      
                 // Return Value for registration of char device, with my 
                 // major number, name and given fops
-                int retval = register_chrdev(MAJOR_NUMBER, "MaxonEposII 50/5", &fops);
+                int retval = register_chrdev(MAJOR_NUMBER, "MaxonEposII_50/5", &fops);
 
+				if(retval == 0){
+
+						printk("Sucessfully loaded Epos II 50/5 device, with major number %d and minor number %d\n");
+
+				}else{
+						if(retval > 0){
+
+							printk("Sucessfully loaded Epos II 50/5 device, but with major number %d and minor number %d\n", retval>>20, retval&0xfffff);
+
+						}else{
+								printk("An error has occured, cannot initialize device file\n");
+								return -1;
+						}
+				}
                 /* Inicialização vem aqui TODO */
 
                 // Sucess               
@@ -68,6 +82,7 @@ static int ModuleInit(void){
 /* Function called when exiting the Kernel */
 static void ModuleExit(void){
 
+				unregister_chrdev(MAJOR_NUMBER,"MaxonEposII_50/5");
                 printk("Epos II 50/5 module unloaded\n");
 
                 /* Finalização vem aqui TODO */
