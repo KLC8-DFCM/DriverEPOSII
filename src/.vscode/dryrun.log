@@ -1,0 +1,5 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/diego-fleury/Documents/SEMEAR/Projetos/FIRA_2022/DriverEPOSII/src'
+make -C /lib/modules/5.13.0-51-generic/build M=/home/diego-fleury/Documents/SEMEAR/Projetos/FIRA_2022/DriverEPOSII/src modules
+make: Leaving directory '/home/diego-fleury/Documents/SEMEAR/Projetos/FIRA_2022/DriverEPOSII/src'
+ 

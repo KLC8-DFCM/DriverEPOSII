@@ -12,16 +12,18 @@
 // testando se abre.
 // Ver: mknod (para criar device file), dmesg (p/ver os logs do kernel), chmod (para executar device file)
 
-int main(void){
+int main(void)
+{
 
-		int device = open("/dev/MaxonEposII_50/5");
+	int device = open("/dev/MaxonEposII_50/5");
 
-		if (device == -1){
-				printf("Falha na abertura do dispositivo MaxonEposII_50/5\n");
-				return -1;
-		}
+	if (device == -1)
+	{
+		printf("Falha na abertura do dispositivo MaxonEposII_50/5\n");
+		return -1;
+	}
 
-		printf("Dispositivo foi aberto com sucesso\n");
-		close(device);
-		return 0;
+	printf("Dispositivo foi aberto com sucesso\n");
+	close(device);
+	return 0;
 }
