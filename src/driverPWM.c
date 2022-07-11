@@ -20,11 +20,16 @@
 // Buffer size for RW ops 
 #define BUFF_SIZE 255
 
+// Name of the device 
+#define DRIVER_NAME "PWM driver" 
+#define DRIVER_CLASS "MyModuleClass"
+
 // buffer for read and write operations
 static char buffer[BUFF_SiZE];
 static int buffer_pointer;
 
 // Variables for interfacing with the devices and their class
+static dev_t my_device_nr;
 static struct class *my_class;
 static struct cdev my_device;
 
@@ -68,7 +73,7 @@ static ssize_t driver_write(struct file *File, const char *user_buffer, size_t c
 
         to_copy = min(count, sizeof(buffer));
 
-        not_copied = copy_to_user(buffer, user_buffer, to_copy);
+        not_copied = copy_from_user(buffer, user_buffer, to_copy);
         delta = to_copy - not_copied;
 
         return delta;
@@ -95,22 +100,67 @@ static int ModuleInit(void)
         // Instead of using a static device number, let's try to used a system allocated one
         // by the means of interfacing with the alloc_chrdev_region function
 
-
         // Allocated new device number
-        if(alloc_chrdev_region(&my_device_nr, 0, 1, DRIVER_NAME){
+        if(alloc_chrdev_region(&my_device_nr, 0, 1, DRIVER_NAME) < 0){
+                printk("Error in allocation of device file number\n");
+                return -1;
+        }
 
+        // Read write operations 
+        printk("Device number M = %d, m = %d was registered\n", my_device_nr >> 20, my_device_nr && 0xfffff);
+
+
+        // Device class creation 
+        if((my_class = class_create(THIS_MODULE, DRIVER_CLASS)) == NULL){
+                printk("Device class cannot be created\n");
+                
+                goto ClassError;
+        }
+
+        // Device file creation
+        if(device_create(my_class, NULL, my_device_nr, NULL, DRIVER_NAME) == NULL){
+                printk("Cannot create device file\n");
+                
+                goto FileError;
+        }
+
+        // Device file initialization, addition of one instance to /dev folder
+        cdev_init(&my_device, &fops);
+        if(cdev_add(&my_device, my_device_nr, 1) == -1){
+                printk("Cannot initialize device file\n");
+
+                goto AddError;
+        }
 
         // Sucess
         return 0;
+
+        // Gotos are introduced in the tutorial as justifiable due to the fact 
+        // that it's easy to remove initialized variables, if organized in this manner,
+        // via the goto construct 
+        AddError:
+                device_destroy(my_class, my_device_nr);
+
+        FileError:
+                class_destroy(my_class);
+
+        ClassError:
+                unregister_chrdev(my_device_nr,DRIVER_NAME);
+
+                return -1;
 }
 
 /* Function called when exiting the Kernel */
 static void ModuleExit(void)
 {
+        /* Finalização vem aqui TODO */
+
+        cdev_del(&my_device);
+        device_destroy(my_class, my_device_nr);
+        class_destroy(my_class);
+        unregister_chrdev(my_device_nr,DRIVER_NAME);
 
         printk("PWM module unloaded\n");
-
-        /* Finalização vem aqui TODO */
 }
 
 /* Meta information for alllowing correct loading of modules through distros*/
